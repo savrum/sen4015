@@ -1,0 +1,10 @@
+# LaTeX Related.
+*.bib
+*.aux
+*.log
+*.fls
+*.*.gz
+*.fdb_latexmk
+
+# MacOS Related
+.DS_Store
