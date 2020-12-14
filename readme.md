@@ -4,9 +4,8 @@ Statistical analysis tool for calculating term-earnings for differences in diffe
 ![](assets/demo.gif)
 
 ## Dependencies
-> pip3 install PyQt5
 
-> py3 arbitrage_gui.py
+> py3 main.py
 
 ## Changelog
 - Migrated to Tkinter.
