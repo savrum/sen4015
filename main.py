@@ -1,173 +1,88 @@
-# Main UI For Arbitragé, Written by Talat Berkay Yıldırım & Alp Giray Savrum
-# Prototyped in QT5 Will migrate to Tkinter for lighter experience.
+from tkinter import Tk, RIGHT, LEFT, BOTH, X, RAISED, TOP
+from tkinter.ttk import Frame, Button, Style, Entry, Label
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+from matplotlib.backend_bases import key_press_handler
+from matplotlib.figure import Figure
+import numpy as np
+
+class base(Frame):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+        self.initInputs()
+
+    def initUI(self):
+        self.master.title("Arbitragé")
+        self.style = Style()
+        self.style.theme_use("default")
+        self.pack(fill=BOTH, expand=True)
+
+    def initInputs(self):
+
+        graphFrame = Frame(self)
+        graphFrame.pack(fill=BOTH, expand=True)
+        fig = Figure(figsize=(1, 1), dpi=100)
+        t = np.arange(0, 12 * 1, 0.1) # Multiply by term.
+        # Loan Graph - Currently working with static values.
+        fig.add_subplot(111).plot(t, 5000 * np.power((1 + (0.2 / 1)), t))
+        # Investment Graph - Currently working with static values.
+        fig.add_subplot(111).plot(t, 5000 * (1 + t/12))
+
+        canvas = FigureCanvasTkAgg(fig, master=graphFrame)  # A tk.DrawingArea.
+        canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
+        toolbar = NavigationToolbar2Tk(canvas, graphFrame)
+        toolbar.update()
+
+        inputsFrame = Frame(self)
+        inputsFrame.grid_columnconfigure(1, weight=1)
+        inputsFrame.grid_columnconfigure(3, weight=1)
+        inputsFrame.pack(fill=X, padx=5, pady=5)
+
+        # Loan Amount
+        Label(inputsFrame, text="Loan Amount", width=14).grid(row=0, column=0)
+        e_loan = Entry(inputsFrame)
+        e_loan.grid(row=0, column=1, stick="we", padx=(0, 5))
+        # Loan Interest
+        Label(inputsFrame, text="Yearly Interest", width=14).grid(row=1, column=0)
+        e_interest = Entry(inputsFrame)
+        e_interest.grid(row=1, column=1, stick="we", padx=(0, 5))
+        # Loan Term
+        Label(inputsFrame, text="Term (Months)", width=14).grid(row=2, column=0)
+        e_term = Entry(inputsFrame)
+        e_term.grid(row=2, column=1, stick="we", padx=(0, 5))
+        # Exchange Price
+        Label(inputsFrame, text="Exchange Price", width=14).grid(row=0, column=2)
+        e_exchange = Entry(inputsFrame)
+        e_exchange.grid(row=0, column=3, stick="we")
+        # Increase Forsee
+        Label(inputsFrame, text="Monthly Increase", width=14).grid(row=1, column=2)
+        e_increase = Entry(inputsFrame)
+        e_increase.grid(row=1, column=3, stick="we")
+
+        def calculate():
+            print("Loan:\t\t", e_loan.get())
+            print("Interest:\t", e_interest.get())
+            print("Term:\t\t", e_term.get())
+            print("Exchange:\t", e_exchange.get())
+            print("Increase:\t", e_increase.get())
+            canvas.draw()
 
 
-from PyQt5 import QtCore, QtGui, QtWidgets
 
+        buttonsFrame = Frame(self)
+        buttonsFrame.pack(fill=X, padx=5, pady=(0, 5))
+        b_calculate = Button(buttonsFrame, text="Calculate", command=calculate)
+        b_calculate.pack(side=RIGHT)
+        b_reset = Button(buttonsFrame, text="Reset")
+        b_reset.pack(side=RIGHT)
+        
+def main():
+    root = Tk()
+    root.geometry("720x540+300+300")
+    base()
+    root.mainloop()
 
-
-class Ui_mainWindow(object):
-    def setupUi(self, mainWindow):
-        mainWindow.setObjectName("mainWindow")
-        mainWindow.resize(794, 564)
-        self.centralwidget = QtWidgets.QWidget(mainWindow)
-        self.centralwidget.setObjectName("centralwidget")
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.centralwidget)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.horizontalFrame_2 = QtWidgets.QFrame(self.centralwidget)
-        self.horizontalFrame_2.setEnabled(True)
-        self.horizontalFrame_2.setObjectName("whorizontalFrame_2")
-        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.horizontalFrame_2)
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        spacerItem = QtWidgets.QSpacerItem(500, 20, QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem)
-        self.faiz_blok_Frame = QtWidgets.QFrame(self.horizontalFrame_2)
-        self.faiz_blok_Frame.setMinimumSize(QtCore.QSize(318, 400))
-        self.faiz_blok_Frame.setMaximumSize(QtCore.QSize(318, 400))
-        self.faiz_blok_Frame.setStyleSheet("#faiz_blok_Frame{\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border-radius : 5px\n"
-"}")
-        self.faiz_blok_Frame.setObjectName("faiz_blok_Frame")
-        self.label_ana_para = QtWidgets.QLabel(self.faiz_blok_Frame)
-        self.label_ana_para.setGeometry(QtCore.QRect(50, 20, 78, 18))
-        font = QtGui.QFont()
-        font.setPointSize(15)
-        font.setBold(True)
-        font.setWeight(75)
-        self.label_ana_para.setFont(font)
-        self.label_ana_para.setObjectName("label_ana_para")
-        self.lineEdit_anaPara = QtWidgets.QLineEdit(self.faiz_blok_Frame)
-        self.lineEdit_anaPara.setGeometry(QtCore.QRect(190, 20, 100, 20))
-        self.lineEdit_anaPara.setMinimumSize(QtCore.QSize(100, 20))
-        self.lineEdit_anaPara.setMaximumSize(QtCore.QSize(100, 20))
-        self.lineEdit_anaPara.setObjectName("lineEdit_anaPara")
-        self.label_kredi_faiz_oran = QtWidgets.QLabel(self.faiz_blok_Frame)
-        self.label_kredi_faiz_oran.setGeometry(QtCore.QRect(50, 60, 125, 18))
-        font = QtGui.QFont()
-        font.setPointSize(15)
-        font.setBold(True)
-        font.setWeight(75)
-        self.label_kredi_faiz_oran.setFont(font)
-        self.label_kredi_faiz_oran.setObjectName("label_kredi_faiz_oran")
-        self.lineEdit_krediFaizOrani = QtWidgets.QLineEdit(self.faiz_blok_Frame)
-        self.lineEdit_krediFaizOrani.setGeometry(QtCore.QRect(190, 60, 100, 21))
-        self.lineEdit_krediFaizOrani.setMaximumSize(QtCore.QSize(100, 51))
-        self.lineEdit_krediFaizOrani.setSizeIncrement(QtCore.QSize(100, 0))
-        self.lineEdit_krediFaizOrani.setObjectName("lineEdit_krediFaizOrani")
-        self.label_time = QtWidgets.QLabel(self.faiz_blok_Frame)
-        self.label_time.setGeometry(QtCore.QRect(50, 100, 127, 18))
-        font = QtGui.QFont()
-        font.setPointSize(15)
-        font.setBold(True)
-        font.setWeight(75)
-        self.label_time.setFont(font)
-        self.label_time.setObjectName("label_time")
-        self.lineEdit_Time = QtWidgets.QLineEdit(self.faiz_blok_Frame)
-        self.lineEdit_Time.setGeometry(QtCore.QRect(190, 100, 100, 21))
-        self.lineEdit_Time.setMaximumSize(QtCore.QSize(100, 82))
-        self.lineEdit_Time.setSizeIncrement(QtCore.QSize(100, 0))
-        self.lineEdit_Time.setObjectName("lineEdit_Time")
-        self.lineEdit_7 = QtWidgets.QLineEdit(self.faiz_blok_Frame)
-        self.lineEdit_7.setGeometry(QtCore.QRect(60, 220, 200, 30))
-        self.lineEdit_7.setObjectName("lineEdit_7")
-        self.pushButton_faiz_hesapla = QtWidgets.QPushButton(self.faiz_blok_Frame)
-        self.pushButton_faiz_hesapla.setGeometry(QtCore.QRect(110, 160, 100, 32))
-        self.pushButton_faiz_hesapla.setMinimumSize(QtCore.QSize(100, 0))
-        self.pushButton_faiz_hesapla.setStyleSheet("#pushButton_faiz_hesapla{\n"
-"border_radius: 5px\n"
-"\n"
-"}\n"
-"")
-        self.pushButton_faiz_hesapla.setObjectName("pushButton_faiz_hesapla")
-        self.horizontalLayout_2.addWidget(self.faiz_blok_Frame)
-        spacerItem1 = QtWidgets.QSpacerItem(70, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem1)
-        self.Kazanc_frame = QtWidgets.QFrame(self.horizontalFrame_2)
-        self.Kazanc_frame.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(100)
-        sizePolicy.setVerticalStretch(99)
-        sizePolicy.setHeightForWidth(self.Kazanc_frame.sizePolicy().hasHeightForWidth())
-        self.Kazanc_frame.setSizePolicy(sizePolicy)
-        self.Kazanc_frame.setMinimumSize(QtCore.QSize(318, 400))
-        self.Kazanc_frame.setMaximumSize(QtCore.QSize(318, 400))
-        self.Kazanc_frame.setStyleSheet("#Kazanc_frame{\n"
-"background-color: rgb(255, 255, 255);\n"
-"border-radius: 5px\n"
-"}\n"
-"")
-        self.Kazanc_frame.setObjectName("Kazanc_frame")
-        self.label_kur_orai = QtWidgets.QLabel(self.Kazanc_frame)
-        self.label_kur_orai.setGeometry(QtCore.QRect(20, 20, 91, 16))
-        font = QtGui.QFont()
-        font.setPointSize(15)
-        font.setBold(True)
-        font.setWeight(75)
-        self.label_kur_orai.setFont(font)
-        self.label_kur_orai.setObjectName("label_kur_orai")
-        self.label_Yillik_degisim_oran = QtWidgets.QLabel(self.Kazanc_frame)
-        self.label_Yillik_degisim_oran.setGeometry(QtCore.QRect(20, 100, 161, 16))
-        font = QtGui.QFont()
-        font.setPointSize(15)
-        font.setBold(True)
-        font.setWeight(75)
-        self.label_Yillik_degisim_oran.setFont(font)
-        self.label_Yillik_degisim_oran.setObjectName("label_Yillik_degisim_oran")
-        self.lineEdit_KurOrani = QtWidgets.QLineEdit(self.Kazanc_frame)
-        self.lineEdit_KurOrani.setGeometry(QtCore.QRect(180, 20, 91, 20))
-        self.lineEdit_KurOrani.setMaximumSize(QtCore.QSize(180, 20))
-        self.lineEdit_KurOrani.setObjectName("lineEdit_KurOrani")
-        self.lineEdit_YDO = QtWidgets.QLineEdit(self.Kazanc_frame)
-        self.lineEdit_YDO.setGeometry(QtCore.QRect(180, 100, 91, 21))
-        self.lineEdit_YDO.setMaximumSize(QtCore.QSize(180, 100))
-        self.lineEdit_YDO.setObjectName("lineEdit_YDO")
-        self.label_aylik_degisi_orani = QtWidgets.QLabel(self.Kazanc_frame)
-        self.label_aylik_degisi_orani.setGeometry(QtCore.QRect(20, 60, 151, 16))
-        font = QtGui.QFont()
-        font.setPointSize(15)
-        font.setBold(True)
-        font.setWeight(75)
-        self.label_aylik_degisi_orani.setFont(font)
-        self.label_aylik_degisi_orani.setObjectName("label_aylik_degisi_orani")
-        self.lineEdit_ADO = QtWidgets.QLineEdit(self.Kazanc_frame)
-        self.lineEdit_ADO.setGeometry(QtCore.QRect(182, 60, 91, 21))
-        self.lineEdit_ADO.setMaximumSize(QtCore.QSize(180, 60))
-        self.lineEdit_ADO.setObjectName("lineEdit_ADO")
-        self.pushButton_kazanc_hesapla = QtWidgets.QPushButton(self.Kazanc_frame)
-        self.pushButton_kazanc_hesapla.setEnabled(True)
-        self.pushButton_kazanc_hesapla.setGeometry(QtCore.QRect(100, 160, 140, 32))
-        self.pushButton_kazanc_hesapla.setObjectName("pushButton_kazanc_hesapla")
-        self.lineEdit_Sonuc = QtWidgets.QLineEdit(self.Kazanc_frame)
-        self.lineEdit_Sonuc.setGeometry(QtCore.QRect(60, 220, 200, 30))
-        self.lineEdit_Sonuc.setObjectName("lineEdit_Sonuc")
-        self.horizontalLayout_2.addWidget(self.Kazanc_frame)
-        spacerItem2 = QtWidgets.QSpacerItem(500, 20, QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem2)
-        self.verticalLayout_2.addWidget(self.horizontalFrame_2)
-        mainWindow.setCentralWidget(self.centralwidget)
-
-        self.retranslateUi(mainWindow)
-        QtCore.QMetaObject.connectSlotsByName(mainWindow)
-
-    def retranslateUi(self, mainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        mainWindow.setWindowTitle(_translate("mainWindow", "HesapSayfası"))
-        self.label_ana_para.setText(_translate("mainWindow", "Ana Para : "))
-        self.label_kredi_faiz_oran.setText(_translate("mainWindow", "Kredi Faiz Oranı :"))
-        self.label_time.setText(_translate("mainWindow", "kredi süresi (Ay):"))
-        self.pushButton_faiz_hesapla.setText(_translate("mainWindow", "Hesapla"))
-        self.label_kur_orai.setText(_translate("mainWindow", "Kur Oranı :"))
-        self.label_Yillik_degisim_oran.setText(_translate("mainWindow", "Yıllık Değişim Oranı :"))
-        self.label_aylik_degisi_orani.setText(_translate("mainWindow", "Aylık değişim Oranı :"))
-        self.pushButton_kazanc_hesapla.setText(_translate("mainWindow", "Kazancı hesapla"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    mainWindow = QtWidgets.QMainWindow()
-    ui = Ui_mainWindow()
-    ui.setupUi(mainWindow)
-    mainWindow.show()
-    sys.exit(app.exec_())
+if __name__ == '__main__':
+    main()
