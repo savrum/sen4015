@@ -1,5 +1,5 @@
-from tkinter import Tk, RIGHT, LEFT, BOTH, X, RAISED, TOP
-from tkinter.ttk import Frame, Button, Style, Entry, Label
+from tkinter import Tk, RIGHT, LEFT, BOTH, X, RAISED, TOP, StringVar
+from tkinter.ttk import Frame, Button, Style, Entry, Label, OptionMenu
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
@@ -60,16 +60,23 @@ class base(Frame):
         Label(inputsFrame, text="Monthly Increase", width=14).grid(row=1, column=2)
         e_increase = Entry(inputsFrame)
         e_increase.grid(row=1, column=3, stick="we")
+        # Increase Forsee
+        Label(inputsFrame, text="Commodity Type", width=14).grid(row=2, column=2)
+        e_commodity_options = ["", "EUR", "USD", "AUR"]
+        e_commodity_var = StringVar(inputsFrame)
+        e_commodity_var.set(e_commodity_options[0])
+        e_commodity = OptionMenu(inputsFrame, e_commodity_var, *e_commodity_options)
+        e_commodity.grid(row=2, column=3, stick="we")
 
+        # Currently just printing values.
         def calculate():
             print("Loan:\t\t", e_loan.get())
             print("Interest:\t", e_interest.get())
             print("Term:\t\t", e_term.get())
             print("Exchange:\t", e_exchange.get())
             print("Increase:\t", e_increase.get())
+            print("Commodity:\t", e_commodity_var.get())
             canvas.draw()
-
-
 
         buttonsFrame = Frame(self)
         buttonsFrame.pack(fill=X, padx=5, pady=(0, 5))
@@ -84,5 +91,5 @@ def main():
     base()
     root.mainloop()
 
-if __name__ == '__main__':
-    main()
+# Required for MacOS 11, idk why.
+if __name__ == '__main__': main()
