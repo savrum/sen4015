@@ -3,6 +3,7 @@ from tkinter.ttk import Frame, Button, Style, Entry, Label, OptionMenu
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
+import yfinance as yf
 import numpy as np
 
 class base(Frame):
@@ -22,16 +23,10 @@ class base(Frame):
         graphFrame = Frame(self)
         graphFrame.pack(fill=BOTH, expand=True)
         fig = Figure(figsize=(1, 1), dpi=100)
-        t = np.arange(0, 12 * 1, 0.1) # Multiply by term.
-        # Loan Graph - Currently working with static values.
-        fig.add_subplot(111).plot(t, 5000 * np.power((1 + (0.2 / 1)), t))
-        # Investment Graph - Currently working with static values.
-        fig.add_subplot(111).plot(t, 5000 * (1 + t/12))
 
         canvas = FigureCanvasTkAgg(fig, master=graphFrame)  # A tk.DrawingArea.
         canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
         canvas.draw()
-        canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
         toolbar = NavigationToolbar2Tk(canvas, graphFrame)
         toolbar.update()
 
@@ -62,7 +57,7 @@ class base(Frame):
         e_increase.grid(row=1, column=3, stick="we")
         # Increase Forsee
         Label(inputsFrame, text="Commodity Type", width=14).grid(row=2, column=2)
-        e_commodity_options = ["", "EUR", "USD", "AUR"]
+        e_commodity_options = ["", "MSFT", "AAPL", "IBM", "TSLA", "USDTRY=X", "EURTRY=X"]
         e_commodity_var = StringVar(inputsFrame)
         e_commodity_var.set(e_commodity_options[0])
         e_commodity = OptionMenu(inputsFrame, e_commodity_var, *e_commodity_options)
@@ -76,6 +71,28 @@ class base(Frame):
             print("Exchange:\t", e_exchange.get())
             print("Increase:\t", e_increase.get())
             print("Commodity:\t", e_commodity_var.get())
+            # Uncomment to log data.
+            # print(yf.Ticker(e_commodity_var.get()).history(period="1y", interval = "1d"))
+            # Get ticker name from e_commodity_var 1 year period, daily data. # Remove ['Close'] for all data.
+            comm_data = list(yf.download(e_commodity_var.get(), period="1y", interval = "1d")['Close'])
+            # Remove nan datas from list
+            comm_data = [comm for comm in comm_data if str(comm) != 'nan']
+            # Plot n items to graph
+            fig.add_subplot(111).plot(comm_data)
+
+            # GOAL
+            # Get "max" data from yfinance ticker
+            # Process data by term (month)
+            # Dump prediction data to list (remove nan's)
+            # Create a list of predictions like (1.32, 1.56, 15.531, 53.01) etc.
+
+            ######################################
+            # DEFAULT GRAPHS, IMPLEMENT LATER
+            # t = np.arange(0, 12 * 1, 0.1) # Multiply by term.
+            # fig.add_subplot(111).plot(t, 5000 * (1 + t/12))
+            # fig.add_subplot(111).plot(t, 5000 * np.power((1 + (0.2 / 1)), t))
+            ######################################
+
             canvas.draw()
 
         buttonsFrame = Frame(self)
