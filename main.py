@@ -2,9 +2,13 @@ from tkinter import Tk, RIGHT, LEFT, BOTH, X, RAISED, TOP, StringVar
 from tkinter.ttk import Frame, Button, Style, Entry, Label, OptionMenu
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.backend_bases import key_press_handler
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import scale
 from matplotlib.figure import Figure
 import yfinance as yf
 import numpy as np
+import math, datetime
 
 class base(Frame):
     def __init__(self):
@@ -71,14 +75,17 @@ class base(Frame):
             print("Exchange:\t", e_exchange.get())
             print("Increase:\t", e_increase.get())
             print("Commodity:\t", e_commodity_var.get())
+
             # Uncomment to log data.
             # print(yf.Ticker(e_commodity_var.get()).history(period="1y", interval = "1d"))
             # Get ticker name from e_commodity_var 1 year period, daily data. # Remove ['Close'] for all data.
-            comm_data = list(yf.download(e_commodity_var.get(), period="1y", interval = "1d")['Close'])
+            # print(yf.Ticker(e_commodity_var.get()).history(period="1y", interval = "1d"))
+
+            #comm_data = list(yf.download(e_commodity_var.get(), period="1y", interval = "1d")['Close'])
             # Remove nan datas from list
-            comm_data = [comm for comm in comm_data if str(comm) != 'nan']
+            #comm_data = [comm for comm in comm_data if str(comm) != 'nan']
             # Plot n items to graph
-            fig.add_subplot(111).plot(comm_data)
+            #fig.add_subplot(111).plot(comm_data)
 
             # GOAL
             # Get "max" data from yfinance ticker
@@ -92,6 +99,45 @@ class base(Frame):
             # fig.add_subplot(111).plot(t, 5000 * (1 + t/12))
             # fig.add_subplot(111).plot(t, 5000 * np.power((1 + (0.2 / 1)), t))
             ######################################
+
+            df = yf.download(e_commodity_var.get(), period="10y", interval = "1d")
+
+            close_px = df['Adj Close']
+            move_avg = close_px.rolling(100, min_periods=1).mean()
+
+            dfreg = df.loc[:,['Close', 'Adj Close','Volume']]
+            dfreg['HILO_PCT'] = (df['High'] - df['Low']) / df['Close'] * 100.0
+            dfreg['DELT_PCT'] = (df['Close'] - df['Open']) / df['Open'] * 100.0
+            dfreg.fillna(value=-99999, inplace=True)
+            
+            forecast_out = 365
+            dfreg['label'] = dfreg['Close'].shift(-forecast_out)
+
+            x = dfreg.drop(columns='label')
+            x = scale(x)
+
+            y = dfreg.iloc[:, -1]
+            x_to_predict = x[-forecast_out:]
+
+            x = x[: -forecast_out]
+            y = y[: -forecast_out]
+
+            x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.6, random_state=0)
+            regressor = LinearRegression()
+
+            regressor.fit(x_train, y_train)
+            accuracy = regressor.score(x_test, y_test)
+
+            pred_set = regressor.predict(x_to_predict)
+            dfreg['prediction'] = np.nan
+
+            print(dfreg)
+            # print(close_px)
+            # print(move_avg)
+            # print(dfreg)
+
+            fig.add_subplot(111).plot(close_px)
+            fig.add_subplot(111).plot(move_avg)
 
             canvas.draw()
 
