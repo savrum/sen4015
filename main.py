@@ -55,7 +55,7 @@ class base(Frame):
 
         # Increase Foresee
         Label(inputsFrame, text="Commodity Type", width=14).grid(row=1, column=2)
-        e_commodity_options = ["", "MSFT", "AAPL", "IBM", "USDTRY=X", "EURTRY=X", "BTC-USD"]
+        e_commodity_options = ["", "MSFT", "AAPL", "IBM", "USDTRY=X", "EURTRY=X", "BTC-USD", "PETKM.IS", "TKC"]
         e_commodity_var = StringVar(inputsFrame)
         e_commodity_var.set(e_commodity_options[0])
         e_commodity = OptionMenu(inputsFrame, e_commodity_var, *e_commodity_options)
@@ -83,9 +83,9 @@ class base(Frame):
             dfreg.fillna(value=-99999, inplace=True)
 
             #Forecastout = Calculation of the time
-            forecast_out = times * 30
+            forecast_out = times * 30         # month times product days 30 so get the total time days
 
-            dfreg['label'] = dfreg['Close'].shift(-forecast_out)
+            dfreg['label'] = dfreg['Close'].shift(-forecast_out) #label stununa close vaerilirini atıyoruz forecastout dan alına sure kadar
 
             # Calculation of the lot
             liste2 = list(dfreg['Close'][-1:])# YF'den alınan son close datası alım olarak kabul edilir
@@ -136,7 +136,7 @@ class base(Frame):
             b = liste[1]
             result = b - a
             increase = result / a * -1 * 100
-
+            
             # Calculation of new list = lot X predict
             liste3 = list(dfreg['Prediction'][-forecast_out:])
             liste3 = [i * lot for i in liste3]
@@ -145,6 +145,8 @@ class base(Frame):
             Label(inputsFrame, text="Accuracy: {:.2f}%".format(accuracy), width=14).grid(row=2, column=0)
             Label(inputsFrame, text="Debt: ${:.2f}".format(debt), width=14).grid(row=2, column=1)
             Label(inputsFrame, text="Change: {:.2f}%".format(increase), width=14).grid(row=2, column=2)
+            Label(inputsFrame, text="Total Profit : ${:.2f}".format(liste3[-1] - debt), width=20).grid(row=2, column=3)
+
 
             # Plot Stuff
             predict_plot.clear()
